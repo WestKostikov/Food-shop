@@ -3,8 +3,8 @@ window.addEventListener('DOMContentLoaded', function() { // назначение
     // Tabs
 
     let tabs = document.querySelectorAll('.tabheader__item'), // получаем все вкладки (табы)
-    tabsContent = document.querySelectorAll('.tabcontent'), // получаем весь контент, который находится в вёрстке
-    tabsParent = document.querySelector('.tabheader__items'); // получаем родителя, который содержит все табы
+        tabsContent = document.querySelectorAll('.tabcontent'), // получаем весь контент, который находится в вёрстке
+        tabsParent = document.querySelector('.tabheader__items'); // получаем родителя, который содержит все табы
 
     function hideTabContent() { // создаём функцию, которая скрывает все ненужные табы
         
@@ -100,13 +100,8 @@ window.addEventListener('DOMContentLoaded', function() { // назначение
         modal = document.querySelector('.modal'), // создаём переменную, отвечающую за модальное окно
         modalCloseBtn = document.querySelector('[data-close]'); // создаём кнопку, отвечающую за событие модального окна
 
-    modalTrigger.forEach(btn => { // используем метод forEach с аргументом btn (внутри будет кнопка) 
-        btn.addEventListener('click', function() { // обращаемся к кнопке методом addEventListener (обработчик события) 
-            modal.classList.add('show'); // добавляем класс show
-            modal.classList.remove('hide'); // удаляем класс hide (он может появиться, когда мы закроем модальное окно)
-            // Либо вариант с toggle - но тогда назначить класс в верстке
-            document.body.style.overflow = 'hidden'; // при открытии модального окна, добавляется стиль, который не позволяет прокручивать страницу 
-        });
+    modalTrigger.forEach(btn => { // используем метод forEach с аргументом btn (внутри будет кнопка)
+        btn.addEventListener('click', openModal); // обращаемся к кнопке методом addEventListener (обработчик события) открывая модальное окно
     });
 
     function closeModal() { // создаём функцию для закрытия модального окна
@@ -114,6 +109,13 @@ window.addEventListener('DOMContentLoaded', function() { // назначение
         modal.classList.remove('show'); // удаляем класс show
         // Либо вариант с toggle - но тогда назначить класс в верстке
         document.body.style.overflow = ''; // восстанавливаем скролл на странице после закрытия модального окна (оставляя пустые ковычки браузер сам решит что нужно поставить там по дефолту)
+    }
+
+    function openModal() {
+        modal.classList.add('show'); // добавляем класс show
+        modal.classList.remove('hide'); // удаляем класс hide (он может появиться, когда мы закроем модальное окно)
+        document.body.style.overflow = 'hidden'; // при открытии модального окна, добавляется стиль, который не позволяет прокручивать страницу
+        clearInterval(modalTimerId); // очищаем интервал переменной (открытия модального окна)
     }
     
     modalCloseBtn.addEventListener('click', closeModal); // вызываем функцию, после клика будет вызываться закрытие модального окна
@@ -129,4 +131,14 @@ window.addEventListener('DOMContentLoaded', function() { // назначение
             closeModal(); // тогда закрываем модальное окно
         }
     });
+
+    const modalTimerId = setTimeout(openModal, 3000); // создаём переменную внутри которой устанавливаем время открытия модального окна
+
+    function showModalByScroll() { // создаём функцию для всплывания модального окна во время прокрутки страницы
+        if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) { // если прокрученная часть (window.pageYOffset) плюс видимая часть (которую мы видим в данные момент без прокрутки. document.documentElement.clientHeight) больше или равна document.documentElement.scrollHeight (прокрутка в самый низ страницы)
+            openModal(); // тогда всплывает модальное окно
+            window.removeEventListener('scroll', showModalByScroll); // удаляем обработчик события (после одного всплывающего окна, при его закрытии больше оно не появится)
+        }
+    }
+    window.addEventListener('scroll', showModalByScroll); // отслеживаем событие scroll и после этого запускаем коллбэк функцию (для всплывания модального окна)
 });
