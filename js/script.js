@@ -93,4 +93,40 @@ window.addEventListener('DOMContentLoaded', function() { // назначение
     }
 
     setClock('.timer', deadline); // вызываем функцию с 2 аргументами, первый это селектор, второй это переменная
+
+    // Modal
+
+    const modalTrigger = document.querySelectorAll('[data-modal]'), // создаём кнопки, которые будут триггерить (вызывать) модальное окно (их будет несколько, поэтому используем querySelectorAll). Data атрибуты прописываются в квадратных скобках
+        modal = document.querySelector('.modal'), // создаём переменную, отвечающую за модальное окно
+        modalCloseBtn = document.querySelector('[data-close]'); // создаём кнопку, отвечающую за событие модального окна
+
+    modalTrigger.forEach(btn => { // используем метод forEach с аргументом btn (внутри будет кнопка) 
+        btn.addEventListener('click', function() { // обращаемся к кнопке методом addEventListener (обработчик события) 
+            modal.classList.add('show'); // добавляем класс show
+            modal.classList.remove('hide'); // удаляем класс hide (он может появиться, когда мы закроем модальное окно)
+            // Либо вариант с toggle - но тогда назначить класс в верстке
+            document.body.style.overflow = 'hidden'; // при открытии модального окна, добавляется стиль, который не позволяет прокручивать страницу 
+        });
+    });
+
+    function closeModal() { // создаём функцию для закрытия модального окна
+        modal.classList.add('hide'); // добавляем класс hide 
+        modal.classList.remove('show'); // удаляем класс show
+        // Либо вариант с toggle - но тогда назначить класс в верстке
+        document.body.style.overflow = ''; // восстанавливаем скролл на странице после закрытия модального окна (оставляя пустые ковычки браузер сам решит что нужно поставить там по дефолту)
+    }
+    
+    modalCloseBtn.addEventListener('click', closeModal); // вызываем функцию, после клика будет вызываться закрытие модального окна
+
+    modal.addEventListener('click', (e) => { // передаём коллбэк функцию с объектом события
+        if (e.target === modal) { // если место, куда кликнул пользователь является модальным окном
+            closeModal(); // тогда закрывается модальное окно
+        }
+    });
+
+    document.addEventListener('keydown', (e) => { // вешаем обработчик события на документ, назначаем событие 'keydown' (нажатие на клавишу), создаём коллбэк функцию с объектом события e
+        if (e.code === "Escape" && modal.classList.contains('show')) { // если e.code (code - определяет кнопку в данном случае 'Escape', подробнее на Event KeyCodes) равно "Escape" и если содержится модальное окно. Если нажата клавиша Escape и при этом модальное окно открыто, то оно закроется 
+            closeModal(); // тогда закрываем модальное окно
+        }
+    });
 });
