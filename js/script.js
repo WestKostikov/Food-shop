@@ -97,8 +97,7 @@ window.addEventListener('DOMContentLoaded', function() { // назначение
     // Modal
 
     const modalTrigger = document.querySelectorAll('[data-modal]'), // создаём кнопки, которые будут триггерить (вызывать) модальное окно (их будет несколько, поэтому используем querySelectorAll). Data атрибуты прописываются в квадратных скобках
-        modal = document.querySelector('.modal'), // создаём переменную, отвечающую за модальное окно
-        modalCloseBtn = document.querySelector('[data-close]'); // создаём кнопку, отвечающую за событие модального окна
+        modal = document.querySelector('.modal'); // создаём переменную, отвечающую за модальное окно
 
     modalTrigger.forEach(btn => { // используем метод forEach с аргументом btn (внутри будет кнопка)
         btn.addEventListener('click', openModal); // обращаемся к кнопке методом addEventListener (обработчик события) открывая модальное окно
@@ -117,11 +116,9 @@ window.addEventListener('DOMContentLoaded', function() { // назначение
         document.body.style.overflow = 'hidden'; // при открытии модального окна, добавляется стиль, который не позволяет прокручивать страницу
         clearInterval(modalTimerId); // очищаем интервал переменной (открытия модального окна)
     }
-    
-    modalCloseBtn.addEventListener('click', closeModal); // вызываем функцию, после клика будет вызываться закрытие модального окна
 
     modal.addEventListener('click', (e) => { // передаём коллбэк функцию с объектом события
-        if (e.target === modal) { // если место, куда кликнул пользователь является модальным окном
+        if (e.target === modal || e.target.getAttribute('data-close') == '') { // если место, куда кликнул пользователь является модальным окном
             closeModal(); // тогда закрывается модальное окно
         }
     });
@@ -216,23 +213,26 @@ window.addEventListener('DOMContentLoaded', function() { // назначение
 
     const forms = document.querySelectorAll('form'); // получаем все формы на странице (по тэгу form)
     const message = { // создаём объект, содержащий список фраз в различные ситуации
-        loading: 'Загрузка...', // свойство loading, со значением загрузка
+        loading: 'img/form/spinner.svg', // свойство loading, со значением картинки загрузки
         success: 'Спасибо! Скоро мы с вами свяжемся', // свойство со значением
         failure: 'Что-то пошло не так...' // свойство со значением
     };
 
     forms.forEach(item => { // берём все формы и подвязываем под них postData (которая будет обработчиком события при отправке)
-        postData(item); // 
+        postData(item);
     });
 
     function postData(form) { // создаём функцию отвечающую за постинг данных с аргументом form (формы)
-        form.addEventListener('submit', (e) => { // вешаем на форму обработчик события, используем событие submit (оно срабатывает каждый раз как только мы хотим отправить какую то форму), используем объект события e 
+        form.addEventListener('submit', (e) => { // вешаем на форму обработчик события, используем событие submit (оно срабатывает каждый раз как только мы хотим отправить какую то форму), используем объект события e
             e.preventDefault(); // отменяем стандартное поведение браузера
 
-            let statusMessage = document.createElement('div');  
-            statusMessage.classList.add('status'); // добавляем класс 
-            statusMessage.textContent = message.loading; // берём элемент и помещаем во внутрь textContent (то сообщение, которое хотим показать, т.е. message.loading)
-            form.appendChild(statusMessage); // добавляем к форме сообщение
+            let statusMessage = document.createElement('img'); // создаём тэг img
+            statusMessage.src = message.loading; // подставляем изображению атрибут src 
+            statusMessage.style.cssText = `
+                display: block;
+                margin: 0 auto;
+            `; // используем свойство cssText для картинки (обычно добавляем в css стили)
+            form.insertAdjacentElement('afterend', statusMessage); // помещаем элементы (в первый аргумент это куда мы вставляем, во втором - то что нам нужно вставить)
         
             const request = new XMLHttpRequest(); // создаём объект 
             request.open('POST', 'server.php'); // вызываем метод open чтобы настроить запрос и во внутрь помещаем аргумент метод POST, а второй аргумент путь на который ссылаемся server.php
@@ -250,16 +250,36 @@ window.addEventListener('DOMContentLoaded', function() { // назначение
             request.addEventListener('load', () => { // вешаем обработчик события на объект (request), отслеживаем load (загрузку нашего запроса)
                 if (request.status === 200) { // проверяем запрос на ошибки (200 - значит всё ок)
                     console.log(request.response); // показывает что всё ок
-                    statusMessage.textContent = message.success; // Когда сделали запрос и всё успешно прошло, выводится об этом сообщение
+                    showThanksModal(message.success); // Когда сделали запрос и всё успешно прошло, выводится об этом сообщение
+                    statusMessage.remove(); // удаляет блок со страницы
                     form.reset(); // очищаем форму (сбрасываем)
-                    setTimeout(() => { // удаляем блок через определённое кол-во времени (2000 миллисекунд)
-                        statusMessage.remove(); // удаляет блок со страницы
-                    }, 2000); // за 2 секунды
-                } else { // если ничего не прошло
-                    statusMessage.textContent = message.failure; // то об этом выводится сообщение
+                } else {
+                    showThanksModal(message.failure);
                 }
             });
         });
     }
 
+    function showThanksModal(message) { // создаём функцию показа модального окна с благодарением
+        const prevModalDialog = document.querySelector('.modal__dialog'); // получаем элемент по классу
+
+        prevModalDialog.classList.add('hide'); // скрываем прошлый контент
+        openModal(); // вызываем открытие модального окна
+
+        const thanksModal = document.createElement('div'); // создаём div
+        thanksModal.classList.add('modal__dialog'); // назначаем div класс
+        thanksModal.innerHTML = `
+            <div class="modal__content">
+                <div class="modal__close" data-close>×</div>
+                <div class="modal__title">${message}</div>
+            </div>
+        `; // часть вёрстки, которая будет находится в этом модальном окне 
+        document.querySelector('.modal').append(thanksModal); // получаем модальное окно без использования переменных
+        setTimeout(() => { // ассихронная операция с установкой таймера
+            thanksModal.remove(); // удаляем модальное окно
+            prevModalDialog.classList.add('show'); // показываем модальное окно
+            prevModalDialog.classList.remove('hide'); // убираем скрытие модального окна
+            closeModal(); // закрываем модальное окно
+        }, 4000); // 4 секунды
+    }
 });
