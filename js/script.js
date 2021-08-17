@@ -211,4 +211,55 @@ window.addEventListener('DOMContentLoaded', function() { // назначение
         21, // то же самое что и для первой карточки
         ".menu .container" // то же самое что и для первой карточки
     ).render(); // то же самое что и для первой карточки
+
+    // Forms
+
+    const forms = document.querySelectorAll('form'); // получаем все формы на странице (по тэгу form)
+    const message = { // создаём объект, содержащий список фраз в различные ситуации
+        loading: 'Загрузка...', // свойство loading, со значением загрузка
+        success: 'Спасибо! Скоро мы с вами свяжемся', // свойство со значением
+        failure: 'Что-то пошло не так...' // свойство со значением
+    };
+
+    forms.forEach(item => { // берём все формы и подвязываем под них postData (которая будет обработчиком события при отправке)
+        postData(item); // 
+    });
+
+    function postData(form) { // создаём функцию отвечающую за постинг данных с аргументом form (формы)
+        form.addEventListener('submit', (e) => { // вешаем на форму обработчик события, используем событие submit (оно срабатывает каждый раз как только мы хотим отправить какую то форму), используем объект события e 
+            e.preventDefault(); // отменяем стандартное поведение браузера
+
+            let statusMessage = document.createElement('div');  
+            statusMessage.classList.add('status'); // добавляем класс 
+            statusMessage.textContent = message.loading; // берём элемент и помещаем во внутрь textContent (то сообщение, которое хотим показать, т.е. message.loading)
+            form.appendChild(statusMessage); // добавляем к форме сообщение
+        
+            const request = new XMLHttpRequest(); // создаём объект 
+            request.open('POST', 'server.php'); // вызываем метод open чтобы настроить запрос и во внутрь помещаем аргумент метод POST, а второй аргумент путь на который ссылаемся server.php
+            request.setRequestHeader('Content-type', 'application/json; charset=utf-8'); // настраиваем заголовки 
+            const formData = new FormData(form); // создаём конструктор, помещая во внутрь форму
+
+            const object = {}; // создаём пустой объект
+            formData.forEach(function(value, key){ // перебераем formData с помощью цикла forEach (перебераем всё что есть внутри) во внутрь помещаем коллбэк функцию
+                object[key] = value; // помещаем все эти данные в object
+            });
+            const json = JSON.stringify(object); // конвертируем object в JSON (метод stringify конвертирует объекты в JSON)
+
+            request.send(json); // вызываем метод отправки 
+
+            request.addEventListener('load', () => { // вешаем обработчик события на объект (request), отслеживаем load (загрузку нашего запроса)
+                if (request.status === 200) { // проверяем запрос на ошибки (200 - значит всё ок)
+                    console.log(request.response); // показывает что всё ок
+                    statusMessage.textContent = message.success; // Когда сделали запрос и всё успешно прошло, выводится об этом сообщение
+                    form.reset(); // очищаем форму (сбрасываем)
+                    setTimeout(() => { // удаляем блок через определённое кол-во времени (2000 миллисекунд)
+                        statusMessage.remove(); // удаляет блок со страницы
+                    }, 2000); // за 2 секунды
+                } else { // если ничего не прошло
+                    statusMessage.textContent = message.failure; // то об этом выводится сообщение
+                }
+            });
+        });
+    }
+
 });
