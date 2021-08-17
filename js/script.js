@@ -144,12 +144,13 @@ window.addEventListener('DOMContentLoaded', function() { // назначение
 
     // Используем классы для создание карточек меню
     class MenuCard { // создаём класс (класс всегда с большой буквы). По сути этот класс создаёт вёрстку
-        constructor(src, alt, title, descr, price, parentSelector) { // создаём constructor, чтобы сконструировать класс. Внутрь помещаем аргументы: src - путь картинки, alt - альтернативный текст (будет подгружаться в случае если картинка не загрузится), title - заголовок карточки, descr - описание, price - цена, parentSelector - передаёт элемент
+        constructor(src, alt, title, descr, price, parentSelector, ...classes) { // создаём constructor, чтобы сконструировать класс. Внутрь помещаем аргументы: src - путь картинки, alt - альтернативный текст (будет подгружаться в случае если картинка не загрузится), title - заголовок карточки, descr - описание, price - цена, parentSelector - передаёт элемент. Добавляем аргумент ...classes (это REST оператор)
             this.src = src; // записываем все аргументы в свойство
             this.alt = alt; // записываем все аргументы в свойство
             this.title = title; // записываем все аргументы в свойство
             this.descr = descr; // записываем все аргументы в свойство
             this.price = price; // записываем все аргументы в свойство
+            this.classes = classes; // записываем аргумент в свойство (это массив (REST оператор записывает все дополнительные данные в массив), методы используются для массива)
             this.parent = document.querySelector(parentSelector); // записываем аргумент в свойство, где получаем только 1 элемент (передаём DOM элемент)
             this.transfer = 27; // создаём статический курс валют
             this.changeToUAH(); // this - новосозданный объект с методом changeToUAH();. Свойства будут идти по порядку, когда дойдёт до этого метода, он возмёт число из this.transfer (27), умножит на this.price (число, которое придёт как аргумент) и вернёт видоизменённое значение
@@ -162,17 +163,22 @@ window.addEventListener('DOMContentLoaded', function() { // назначение
         render() { // создаём метод, для формирования вёрстки
             const element = document.createElement('div'); // создаём переменную element, обращаемся к document с методом создания элемента (createElement) и создаём элемент div
 
+            if (this.classes.length === 0) { // если в ...classes ничего не передаётся (обращаемся к кол-ву элементов массива (length))
+                this.classes = "menu__item"; // создаём дефолтный класс
+                element.classList.add(this.classes); // то мы присваиваем класс menu__item
+            } else { // если не переданы ни одни классы, то мы формируем их самостоятельно. Если у нас есть хоть один класс, то мы запускаем часть ниже
+                this.classes.forEach(className => element.classList.add(className)); // обращаемся к this.classes, используем метод forEach (для перебора массива), называем все элементы внутри массива - className (это аргумент для стрелочной функции), обращаемся к element (новосозданному div), обращаемся к его классу и добавляем каждый класс, который находится в этом массиве
+            }
+
             // обращаемся к переменной element с помощью метода innerHTML, который позволяет динамически сформировать структуру. Далее копируем вёртску из index.HTML (или можно написать самому). Редактируем подставляя созданные аргументы (через интерполяцию)
             element.innerHTML = `
-                <div class="menu__item">
-                    <img src=${this.src} alt=${this.alt}>
-                    <h3 class="menu__item-subtitle">${this.title}</h3>
-                    <div class="menu__item-descr">${this.descr}</div>
-                    <div class="menu__item-divider"></div>
-                    <div class="menu__item-price">
-                        <div class="menu__item-cost">Цена:</div>
-                        <div class="menu__item-total"><span>${this.price}</span> грн/день</div>
-                    </div>
+                <img src=${this.src} alt=${this.alt}>
+                <h3 class="menu__item-subtitle">${this.title}</h3>
+                <div class="menu__item-descr">${this.descr}</div>
+                <div class="menu__item-divider"></div>
+                <div class="menu__item-price">
+                    <div class="menu__item-cost">Цена:</div>
+                    <div class="menu__item-total"><span>${this.price}</span> грн/день</div>
                 </div>
             `;
             this.parent.append(element); // используем метод append (т.к. this.parent - это DOM элемент) (метод append помещает новосозданный элемент во внутрь того же элемента)
