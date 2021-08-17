@@ -1,173 +1,173 @@
-window.addEventListener('DOMContentLoaded', function() { // назначение глобального обработчика событий (DOMContentLoaded)
+window.addEventListener('DOMContentLoaded', function() {
 
     // Tabs
+    
+	let tabs = document.querySelectorAll('.tabheader__item'),
+		tabsContent = document.querySelectorAll('.tabcontent'),
+		tabsParent = document.querySelector('.tabheader__items');
 
-    let tabs = document.querySelectorAll('.tabheader__item'), // получаем все вкладки (табы)
-        tabsContent = document.querySelectorAll('.tabcontent'), // получаем весь контент, который находится в вёрстке
-        tabsParent = document.querySelector('.tabheader__items'); // получаем родителя, который содержит все табы
-
-    function hideTabContent() { // создаём функцию, которая скрывает все ненужные табы
+	function hideTabContent() {
         
-        tabsContent.forEach(item => { // перебераем псевдо-массив. item - внутри будет каждый отдельный контент. (ниже будет комбинация добавления и удаления классов)
-            item.classList.add('hide'); // добавляем класс hide (скрытие элементов)
-            item.classList.remove('show', 'fade'); // удаляем классы show и fade (fade - класс анимации переключения)
+        tabsContent.forEach(item => {
+            item.classList.add('hide');
+            item.classList.remove('show', 'fade');
         });
 
-        tabs.forEach(item => { // обращаемся к каждому отдельному табу
-            item.classList.remove('tabheader__item_active'); // у каждого из элементов табов удаляем класс активности 
+        tabs.forEach(item => {
+            item.classList.remove('tabheader__item_active');
         });
 	}
 
-    function showTabContent(i = 0) { // создаём функцию, которая показывает табы. Присваиваем i ноль (ES6), 
-        tabsContent[i].classList.add('show', 'fade'); // добавляем классы show и fade (fade - класс анимации переключения)
-        tabsContent[i].classList.remove('hide'); // удаляем у нужного элемента класс hide (скрытие)
-        tabs[i].classList.add('tabheader__item_active'); // добавление класса активности для конкретного элемента таба (i)
+	function showTabContent(i = 0) {
+        tabsContent[i].classList.add('show', 'fade');
+        tabsContent[i].classList.remove('hide');
+        tabs[i].classList.add('tabheader__item_active');
     }
     
-    hideTabContent(); // вызываем функцию, скрывающую табы (по умолчанию использует аргументы(i = 0)(это фишка ES6))
-    showTabContent(); // вызываем функцию, показывающую табы
+    hideTabContent();
+    showTabContent();
 
-	tabsParent.addEventListener('click', function(event) { // делегирование событий, назначаем обработчик событий клика ('ckick'), создаём коллбэк функцию с объектом события event
-		const target = event.target; // создаём переменную target для частого использования event.target 
-		if(target && target.classList.contains('tabheader__item')) { // создаём условие, проверяем target, потом target.classList и при помощи contains определяем что мы точно кликнули таб
-            tabs.forEach((item, i) => { // перебераем все табы, которые находятся в переменной tabs (псевдо-массив), вызывая коллбэк функцию с 2 аргументами (item - каждый таб, i - номер элемента по порядку перебора)
-                if (target == item) { // условие, если target (тот элемент, в который мы только что кликнули) будет совпадать с элементом, который мы сейчас перебераем
-                    hideTabContent(); // то мы вызываем эту функцию (скрываем ненужные табы)
-                    showTabContent(i); // и эту функцию (i - номер того элемента, который совпал с условием, т.е. если мы кликнули в 3тий таб, то у нас перебераются все табы, дошли до 3тьего и тот который нужен показывается, а все остальные скрываются) (показываем нужные табы)
+	tabsParent.addEventListener('click', function(event) {
+		const target = event.target;
+		if(target && target.classList.contains('tabheader__item')) {
+            tabs.forEach((item, i) => {
+                if (target == item) {
+                    hideTabContent();
+                    showTabContent(i);
                 }
             });
 		}
-	});
-
+    });
+    
     // Timer
 
-    const deadline = '2020-05-11'; // создаём отправную точку (создаём переменную, которая определяет дату в виде строки)
+    const deadline = '2020-05-11';
 
-    function getTimeRemaining(endtime) { // создаём функцию для определения разницы между deadline и текущим временем 
-        const t = Date.parse(endtime) - Date.parse(new Date()), // создаём локальную переменную t, в ней Date.parse(endtime) получает количество миллисекунд, которое будет в конечном времени до которого нужно досчитать и дальше нам нужно найти разницу, поэтому мы отнимаем Date.parse(new Date()) (определяем разницу между датами). При запуске функции получаем разницу между датами в количестве миллисекунд. 
-            days = Math.floor( (t/(1000*60*60*24)) ), // считаем количество дней, которые будут отображаться в таймере (берём количество миллисекунд и делим на количество миллисекунд, которые находятся в одном дне и округляем (чтобы не было дробных значений, благодаря Math.floor))
-            seconds = Math.floor( (t/1000) % 60 ), // всё как и в других примерах 
-            minutes = Math.floor( (t/1000/60) % 60 ), // вначале получаем кол-во секунд, потом делим на 60 и получаем кол-во минут и делим на 60
-            hours = Math.floor( (t/(1000*60*60) % 24) ); // берём количество миллисекунд, которые остались в разнице (t), делим на кол-во миллисекунд, которые находятся в одном часе, знак (оператор) % делит первый аргумент (t/(1000*60*60) на 24 (часа) и возвращает остаток от деления. Получаем хвостик, которого не хватает до полных суток (благодаря оператору %)
+    function getTimeRemaining(endtime) {
+        const t = Date.parse(endtime) - Date.parse(new Date()),
+            days = Math.floor( (t/(1000*60*60*24)) ),
+            seconds = Math.floor( (t/1000) % 60 ),
+            minutes = Math.floor( (t/1000/60) % 60 ),
+            hours = Math.floor( (t/(1000*60*60) % 24) );
 
-        return { // используем оператор return для возврата объекта, фигурными скобками создаём объект 
-            'total': t, // помещаем в свойство 'total' значение переменной t
-            'days': days, // помещаем в свойство 'days' значение переменной days 
-            'hours': hours, // помещаем в свойство 'hours' значение переменной hours 
-            'minutes': minutes, // помещаем в свойство 'minutes' значение переменной minutes 
-            'seconds': seconds // помещаем в свойство 'seconds' значение переменной seconds 
-        }; 
+        return {
+            'total': t,
+            'days': days,
+            'hours': hours,
+            'minutes': minutes,
+            'seconds': seconds
+        };
     }
 
-    function getZero(num){ // создаём функцию, принимающая число
-        if (num >= 0 && num < 10) { // если число (num) будет больше или равно 0, и если число будет меньше 10
-            return '0' + num; // то функция будет возвращать модифицированное значение 
-        } else { // если приходит больше 10
-            return num; // нам не нужно ничего модифицировать, мы просто возвращаем это число (возвращается без каких либо изменений и записывается на страницу)
+    function getZero(num){
+        if (num >= 0 && num < 10) { 
+            return '0' + num;
+        } else {
+            return num;
         }
     }
 
-    function setClock(selector, endtime) { // создаём функцию с двумя аргументами, которая устанавливает таймер/часы на страницу 
+    function setClock(selector, endtime) {
 
-        const timer = document.querySelector(selector), // создаём переменные в которые помещаем элементы со страницы, первая это timer. Обращаемся к документу и с помощью querySelector находим элемент (с HTML файла)
-            days = timer.querySelector("#days"), // далее создаём переменные, где обращаемся к первой переменной и внутри него ищем уникальные id ("#days")
-            hours = timer.querySelector('#hours'), // всё как days
-            minutes = timer.querySelector('#minutes'), // всё как days
-            seconds = timer.querySelector('#seconds'), // всё как days
-            timeInterval = setInterval(updateClock, 1000); // создаём переменную timeInterval, присваиваем ей конструкцию setInterval (которая позволяет запускать определённую функцию через определённое кол-во времени. Функцией выступает updateClock и запуск через каждые 1000 миллисекунд). Запуск функции updateClock каждую секунду (таймер обновляется каждую секунду)
+        const timer = document.querySelector(selector),
+            days = timer.querySelector("#days"),
+            hours = timer.querySelector('#hours'),
+            minutes = timer.querySelector('#minutes'),
+            seconds = timer.querySelector('#seconds'),
+            timeInterval = setInterval(updateClock, 1000);
 
-        updateClock(); // вызываем функцию инициализации, которая запуститься один раз, установит текущую дату, потом исчезнет и будет работать setInterval
+        updateClock();
 
-        function updateClock() { // создаём функцию обновления часов
-            const t = getTimeRemaining(endtime); // расчёт времени, которое осталось в данную секунду, функция getTimeRemaining(endtime) будет возвращать объект со всеми данными (t, days, hours etc). Получаем разницу между планированным и текущем временем.
+        function updateClock() {
+            const t = getTimeRemaining(endtime);
 
-            days.innerHTML = getZero(t.days); // помещаем на страницу элементы days с помощью метода innerHTML (можно заменить textContent) и присваиваем кол-во дней, которые нужно отобразить на странице
-            hours.innerHTML = getZero(t.hours); // всё как в days.innerHTML
-            minutes.innerHTML = getZero(t.minutes); // всё как в days.innerHTML
-            seconds.innerHTML = getZero(t.seconds); // всё как в days.innerHTML
+            days.innerHTML = getZero(t.days);
+            hours.innerHTML = getZero(t.hours);
+            minutes.innerHTML = getZero(t.minutes);
+            seconds.innerHTML = getZero(t.seconds);
 
-            if (t.total <= 0) { // если значение время вышло (т.е. оно идёт в отрицательную сторону)
-                clearInterval(timeInterval); // , то таймер не обновляется (останавливается)
+            if (t.total <= 0) {
+                clearInterval(timeInterval);
             }
         }
     }
 
-    setClock('.timer', deadline); // вызываем функцию с 2 аргументами, первый это селектор, второй это переменная
+    setClock('.timer', deadline);
 
     // Modal
 
-    const modalTrigger = document.querySelectorAll('[data-modal]'), // создаём кнопки, которые будут триггерить (вызывать) модальное окно (их будет несколько, поэтому используем querySelectorAll). Data атрибуты прописываются в квадратных скобках
-        modal = document.querySelector('.modal'); // создаём переменную, отвечающую за модальное окно
+    const modalTrigger = document.querySelectorAll('[data-modal]'),
+        modal = document.querySelector('.modal');
 
-    modalTrigger.forEach(btn => { // используем метод forEach с аргументом btn (внутри будет кнопка)
-        btn.addEventListener('click', openModal); // обращаемся к кнопке методом addEventListener (обработчик события) открывая модальное окно
+    modalTrigger.forEach(btn => {
+        btn.addEventListener('click', openModal);
     });
 
-    function closeModal() { // создаём функцию для закрытия модального окна
-        modal.classList.add('hide'); // добавляем класс hide 
-        modal.classList.remove('show'); // удаляем класс show
-        // Либо вариант с toggle - но тогда назначить класс в верстке
-        document.body.style.overflow = ''; // восстанавливаем скролл на странице после закрытия модального окна (оставляя пустые ковычки браузер сам решит что нужно поставить там по дефолту)
+    function closeModal() {
+        modal.classList.add('hide');
+        modal.classList.remove('show');
+        document.body.style.overflow = '';
     }
 
     function openModal() {
-        modal.classList.add('show'); // добавляем класс show
-        modal.classList.remove('hide'); // удаляем класс hide (он может появиться, когда мы закроем модальное окно)
-        document.body.style.overflow = 'hidden'; // при открытии модального окна, добавляется стиль, который не позволяет прокручивать страницу
-        clearInterval(modalTimerId); // очищаем интервал переменной (открытия модального окна)
+        modal.classList.add('show');
+        modal.classList.remove('hide');
+        document.body.style.overflow = 'hidden';
+        clearInterval(modalTimerId);
     }
 
-    modal.addEventListener('click', (e) => { // передаём коллбэк функцию с объектом события
-        if (e.target === modal || e.target.getAttribute('data-close') == '') { // если место, куда кликнул пользователь является модальным окном
-            closeModal(); // тогда закрывается модальное окно
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal || e.target.getAttribute('data-close') == "") {
+            closeModal();
         }
     });
 
-    document.addEventListener('keydown', (e) => { // вешаем обработчик события на документ, назначаем событие 'keydown' (нажатие на клавишу), создаём коллбэк функцию с объектом события e
-        if (e.code === "Escape" && modal.classList.contains('show')) { // если e.code (code - определяет кнопку в данном случае 'Escape', подробнее на Event KeyCodes) равно "Escape" и если содержится модальное окно. Если нажата клавиша Escape и при этом модальное окно открыто, то оно закроется 
-            closeModal(); // тогда закрываем модальное окно
+    document.addEventListener('keydown', (e) => {
+        if (e.code === "Escape" && modal.classList.contains('show')) { 
+            closeModal();
         }
     });
 
-    const modalTimerId = setTimeout(openModal, 3000); // создаём переменную внутри которой устанавливаем время открытия модального окна
+    const modalTimerId = setTimeout(openModal, 300000);
+    // Изменил значение, чтобы не отвлекало
 
-    function showModalByScroll() { // создаём функцию для всплывания модального окна во время прокрутки страницы
-        if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) { // если прокрученная часть (window.pageYOffset) плюс видимая часть (которую мы видим в данные момент без прокрутки. document.documentElement.clientHeight) больше или равна document.documentElement.scrollHeight (прокрутка в самый низ страницы)
-            openModal(); // тогда всплывает модальное окно
-            window.removeEventListener('scroll', showModalByScroll); // удаляем обработчик события (после одного всплывающего окна, при его закрытии больше оно не появится)
+    function showModalByScroll() {
+        if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
+            openModal();
+            window.removeEventListener('scroll', showModalByScroll);
         }
     }
-    window.addEventListener('scroll', showModalByScroll); // отслеживаем событие scroll и после этого запускаем коллбэк функцию (для всплывания модального окна)
+    window.addEventListener('scroll', showModalByScroll);
 
     // Используем классы для создание карточек меню
-    class MenuCard { // создаём класс (класс всегда с большой буквы). По сути этот класс создаёт вёрстку
-        constructor(src, alt, title, descr, price, parentSelector, ...classes) { // создаём constructor, чтобы сконструировать класс. Внутрь помещаем аргументы: src - путь картинки, alt - альтернативный текст (будет подгружаться в случае если картинка не загрузится), title - заголовок карточки, descr - описание, price - цена, parentSelector - передаёт элемент. Добавляем аргумент ...classes (это REST оператор)
-            this.src = src; // записываем все аргументы в свойство
-            this.alt = alt; // записываем все аргументы в свойство
-            this.title = title; // записываем все аргументы в свойство
-            this.descr = descr; // записываем все аргументы в свойство
-            this.price = price; // записываем все аргументы в свойство
-            this.classes = classes; // записываем аргумент в свойство (это массив (REST оператор записывает все дополнительные данные в массив), методы используются для массива)
-            this.parent = document.querySelector(parentSelector); // записываем аргумент в свойство, где получаем только 1 элемент (передаём DOM элемент)
-            this.transfer = 27; // создаём статический курс валют
-            this.changeToUAH(); // this - новосозданный объект с методом changeToUAH();. Свойства будут идти по порядку, когда дойдёт до этого метода, он возмёт число из this.transfer (27), умножит на this.price (число, которое придёт как аргумент) и вернёт видоизменённое значение
+
+    class MenuCard {
+        constructor(src, alt, title, descr, price, parentSelector, ...classes) {
+            this.src = src;
+            this.alt = alt;
+            this.title = title;
+            this.descr = descr;
+            this.price = price;
+            this.classes = classes;
+            this.parent = document.querySelector(parentSelector);
+            this.transfer = 27;
+            this.changeToUAH(); 
         }
 
-        changeToUAH() { // создаём метод, который конвертирует доллары в гривны
-            this.price = this.price * this.transfer; // описан в this.changeToUAH 
+        changeToUAH() {
+            this.price = this.price * this.transfer; 
         }
 
-        render() { // создаём метод, для формирования вёрстки
-            const element = document.createElement('div'); // создаём переменную element, обращаемся к document с методом создания элемента (createElement) и создаём элемент div
+        render() {
+            const element = document.createElement('div');
 
-            if (this.classes.length === 0) { // если в ...classes ничего не передаётся (обращаемся к кол-ву элементов массива (length))
-                this.classes = "menu__item"; // создаём дефолтный класс
-                element.classList.add(this.classes); // то мы присваиваем класс menu__item
-            } else { // если не переданы ни одни классы, то мы формируем их самостоятельно. Если у нас есть хоть один класс, то мы запускаем часть ниже
-                this.classes.forEach(className => element.classList.add(className)); // обращаемся к this.classes, используем метод forEach (для перебора массива), называем все элементы внутри массива - className (это аргумент для стрелочной функции), обращаемся к element (новосозданному div), обращаемся к его классу и добавляем каждый класс, который находится в этом массиве
+            if (this.classes.length === 0) {
+                this.classes = "menu__item";
+                element.classList.add(this.classes);
+            } else {
+                this.classes.forEach(className => element.classList.add(className));
             }
 
-            // обращаемся к переменной element с помощью метода innerHTML, который позволяет динамически сформировать структуру. Далее копируем вёртску из index.HTML (или можно написать самому). Редактируем подставляя созданные аргументы (через интерполяцию)
             element.innerHTML = `
                 <img src=${this.src} alt=${this.alt}>
                 <h3 class="menu__item-subtitle">${this.title}</h3>
@@ -178,108 +178,107 @@ window.addEventListener('DOMContentLoaded', function() { // назначение
                     <div class="menu__item-total"><span>${this.price}</span> грн/день</div>
                 </div>
             `;
-            this.parent.append(element); // используем метод append (т.к. this.parent - это DOM элемент) (метод append помещает новосозданный элемент во внутрь того же элемента)
+            this.parent.append(element);
         }
     }
 
-    new MenuCard( // создаём объект для формирования карточки (без переменной, потому что используется на месте, т.е. он просто создается и удаляется, потому что на него нет никаких ссылок). Объект используется только 1 раз
-        "img/tabs/vegy.jpg", // передаём аргумент во внутрь класса (копируем значения из вёрстки (index.HTML) лучше в кавычках). Это src 
-        "vegy", // передаём аргумент во внутрь класса (копируем значения из вёрстки (index.HTML) лучше в кавычках). Это alt 
-        'Меню "Фитнес"', // передаём аргумент во внутрь класса (копируем значения из вёрстки (index.HTML) лучше в кавычках). Это title
-        'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!', // передаём аргумент во внутрь класса (копируем значения из вёрстки (index.HTML) лучше в кавычках). Это descr
-        9, // // передаём аргумент во внутрь класса (копируем значения из вёрстки (index.HTML) лучше в кавычках). Это price (9$)
-        ".menu .container" // передаём аргумент во внутрь класса (копируем значения из вёрстки (index.HTML) лучше в кавычках). Это parentSelector
-    ).render(); // вызываем метод render у объекта new MenuCard
+    new MenuCard(
+        "img/tabs/vegy.jpg",
+        "vegy",
+        'Меню "Фитнес"',
+        'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
+        9,
+        ".menu .container"
+    ).render();
 
-    new MenuCard( // создаём объект для формирования карточки
-        "img/tabs/post.jpg", // то же самое что и для первой карточки
-        "post", // то же самое что и для первой карточки
-        'Меню "Постное"', // то же самое что и для первой карточки
-        'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.', // то же самое что и для первой карточки
-        14, // то же самое что и для первой карточки
-        ".menu .container" // то же самое что и для первой карточки
-    ).render(); // то же самое что и для первой карточки
+    new MenuCard(
+        "img/tabs/post.jpg",
+        "post",
+        'Меню "Постное"',
+        'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.',
+        14,
+        ".menu .container"
+    ).render();
 
-    new MenuCard( // создаём объект для формирования карточки
-        "img/tabs/elite.jpg", // то же самое что и для первой карточки
-        "elite", // то же самое что и для первой карточки
-        'Меню “Премиум”', // то же самое что и для первой карточки
-        'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!', // то же самое что и для первой карточки
-        21, // то же самое что и для первой карточки
-        ".menu .container" // то же самое что и для первой карточки
-    ).render(); // то же самое что и для первой карточки
+    new MenuCard(
+        "img/tabs/elite.jpg",
+        "elite",
+        'Меню “Премиум”',
+        'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!',
+        21,
+        ".menu .container"
+    ).render();
 
     // Forms
 
-    const forms = document.querySelectorAll('form'); // получаем все формы на странице (по тэгу form)
-    const message = { // создаём объект, содержащий список фраз в различные ситуации
-        loading: 'img/form/spinner.svg', // свойство loading, со значением картинки загрузки
-        success: 'Спасибо! Скоро мы с вами свяжемся', // свойство со значением
-        failure: 'Что-то пошло не так...' // свойство со значением
+    const forms = document.querySelectorAll('form');
+    const message = {
+        loading: 'img/form/spinner.svg',
+        success: 'Спасибо! Скоро мы с вами свяжемся',
+        failure: 'Что-то пошло не так...'
     };
 
-    forms.forEach(item => { // берём все формы и подвязываем под них postData (которая будет обработчиком события при отправке)
+    forms.forEach(item => {
         postData(item);
     });
 
-    function postData(form) { // создаём функцию отвечающую за постинг данных с аргументом form (формы)
-        form.addEventListener('submit', (e) => { // вешаем на форму обработчик события, используем событие submit (оно срабатывает каждый раз как только мы хотим отправить какую то форму), используем объект события e
-            e.preventDefault(); // отменяем стандартное поведение браузера
+    function postData(form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
 
-            let statusMessage = document.createElement('img'); // создаём тэг img
-            statusMessage.src = message.loading; // подставляем изображению атрибут src 
+            let statusMessage = document.createElement('img');
+            statusMessage.src = message.loading;
             statusMessage.style.cssText = `
                 display: block;
                 margin: 0 auto;
-            `; // используем свойство cssText для картинки (обычно добавляем в css стили)
-            form.insertAdjacentElement('afterend', statusMessage); // помещаем элементы (в первый аргумент это куда мы вставляем, во втором - то что нам нужно вставить)
+            `;
+            form.insertAdjacentElement('afterend', statusMessage);
         
-            const request = new XMLHttpRequest(); // создаём объект 
-            request.open('POST', 'server.php'); // вызываем метод open чтобы настроить запрос и во внутрь помещаем аргумент метод POST, а второй аргумент путь на который ссылаемся server.php
-            request.setRequestHeader('Content-type', 'application/json; charset=utf-8'); // настраиваем заголовки 
-            const formData = new FormData(form); // создаём конструктор, помещая во внутрь форму
+            const formData = new FormData(form);
 
-            const object = {}; // создаём пустой объект
-            formData.forEach(function(value, key){ // перебераем formData с помощью цикла forEach (перебераем всё что есть внутри) во внутрь помещаем коллбэк функцию
-                object[key] = value; // помещаем все эти данные в object
+            const object = {};
+            formData.forEach(function(value, key){
+                object[key] = value;
             });
-            const json = JSON.stringify(object); // конвертируем object в JSON (метод stringify конвертирует объекты в JSON)
 
-            request.send(json); // вызываем метод отправки 
-
-            request.addEventListener('load', () => { // вешаем обработчик события на объект (request), отслеживаем load (загрузку нашего запроса)
-                if (request.status === 200) { // проверяем запрос на ошибки (200 - значит всё ок)
-                    console.log(request.response); // показывает что всё ок
-                    showThanksModal(message.success); // Когда сделали запрос и всё успешно прошло, выводится об этом сообщение
-                    statusMessage.remove(); // удаляет блок со страницы
-                    form.reset(); // очищаем форму (сбрасываем)
-                } else {
-                    showThanksModal(message.failure);
-                }
+            fetch('server.php', { // обращаемся к серверу, создаём объект
+                method: 'POST', // метод пост
+                headers: { // заголовки
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify(object) // тело, которое будем отправлять
+            }).then(data => { // с сервера вернутся данные, создаём коллбэк функцию
+                console.log(data); // возвращаем данные из promise (с сервера)
+                showThanksModal(message.success); // показывает сообщение о благодарности
+                statusMessage.remove(); // удаление спиннера
+            }).catch(() => { // обрабатываем ошибки (catch), создаём коллбэк функцию 
+                showThanksModal(message.failure); // выводится сообщение о том, что что-то пошло не так
+            }).finally(() => { // действие, которое выполняется всегда в не зависимости от ответа сервера, создаём коллбэк функцию
+                form.reset(); // очищается форма
             });
         });
     }
 
-    function showThanksModal(message) { // создаём функцию показа модального окна с благодарением
-        const prevModalDialog = document.querySelector('.modal__dialog'); // получаем элемент по классу
+    function showThanksModal(message) {
+        const prevModalDialog = document.querySelector('.modal__dialog');
 
-        prevModalDialog.classList.add('hide'); // скрываем прошлый контент
-        openModal(); // вызываем открытие модального окна
+        prevModalDialog.classList.add('hide');
+        openModal();
 
-        const thanksModal = document.createElement('div'); // создаём div
-        thanksModal.classList.add('modal__dialog'); // назначаем div класс
+        const thanksModal = document.createElement('div');
+        thanksModal.classList.add('modal__dialog');
         thanksModal.innerHTML = `
             <div class="modal__content">
                 <div class="modal__close" data-close>×</div>
                 <div class="modal__title">${message}</div>
             </div>
-        `; // часть вёрстки, которая будет находится в этом модальном окне 
-        document.querySelector('.modal').append(thanksModal); // получаем модальное окно без использования переменных
-        setTimeout(() => { // ассихронная операция с установкой таймера
-            thanksModal.remove(); // удаляем модальное окно
-            prevModalDialog.classList.add('show'); // показываем модальное окно
-            prevModalDialog.classList.remove('hide'); // убираем скрытие модального окна
-            closeModal(); // закрываем модальное окно
-        }, 4000); // 4 секунды
+        `;
+        document.querySelector('.modal').append(thanksModal);
+        setTimeout(() => {
+            thanksModal.remove();
+            prevModalDialog.classList.add('show');
+            prevModalDialog.classList.remove('hide');
+            closeModal();
+        }, 4000);
     }
 });
