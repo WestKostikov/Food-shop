@@ -182,32 +182,35 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    new MenuCard(
-        "img/tabs/vegy.jpg",
-        "vegy",
-        'Меню "Фитнес"',
-        'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
-        9,
-        ".menu .container"
-    ).render();
+    getResource('http://localhost:3000/menu') // настраиваем взаимодействие между клиентом и сервером (записываем в бд данные от клиента)
+        .then(data => { // обращаемся к базе данных
+            data.forEach(({img, altimg, title, descr, price}) => { // перебераем базу данных (вытаскиваем свойства из объекта)
+                new MenuCard(img, altimg, title, descr, price, ".menu .container").render(); 
+            });
+        });
 
-    new MenuCard(
-        "img/tabs/post.jpg",
-        "post",
-        'Меню "Постное"',
-        'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.',
-        14,
-        ".menu .container"
-    ).render();
+    // getResource('http://localhost:3000/menu')
+    //     .then(data => createCard(data));
 
-    new MenuCard(
-        "img/tabs/elite.jpg",
-        "elite",
-        'Меню “Премиум”',
-        'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!',
-        21,
-        ".menu .container"
-    ).render();
+    // function createCard(data) {
+    //     data.forEach(({img, altimg, title, descr, price}) => {
+    //         const element = document.createElement('div');
+
+    //         element.classList.add("menu__item");
+
+    //         element.innerHTML = `
+    //             <img src=${img} alt=${altimg}>
+    //             <h3 class="menu__item-subtitle">${title}</h3>
+    //             <div class="menu__item-descr">${descr}</div>
+    //             <div class="menu__item-divider"></div>
+    //             <div class="menu__item-price">
+    //                 <div class="menu__item-cost">Цена:</div>
+    //                 <div class="menu__item-total"><span>${price}</span> грн/день</div>
+    //             </div>
+    //         `;
+    //         document.querySelector(".menu .container").append(element);
+    //     });
+    // }
 
     // Forms
 
@@ -219,10 +222,32 @@ window.addEventListener('DOMContentLoaded', function() {
     };
 
     forms.forEach(item => {
-        postData(item);
+        bindPostData(item);
     });
 
-    function postData(form) {
+    const postData = async (url, data) => { // создаём переменную и присваиваем ей стрелочную функцию с запросом (передаём url и данные которые будут поститься в этой функции (data)). async говорит что дальше будет асинхронный код
+        let res = await fetch(url, { // создаём переменную и присваиваем ей запрос, передаём url (ссылаться на сервер) и открываем объект. await - парный оператор async, который дожидается завершения кода (делает его синхронным)
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: data // помещаем данные 
+        });
+    
+        return await res.json(); // возвращаем из функции promise (res.json();), await - дожидается выполнения promise, и только потом отрабатывает return (возвращает)
+    };
+
+    async function getResource(url) { // делаем запрос 
+        let res = await fetch(url);
+    
+        if (!res.ok) { // если что-то пошло не так
+            throw new Error(`Could not fetch ${url}, status: ${res.status}`); // в таком случае появляется ошибка (создаём объект ошибку(во внутрь помещаем текст ошибки)). Оператор throw выкидывает ошибку
+        }
+    
+        return await res.json();
+    }
+
+    function bindPostData(form) {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
 
@@ -236,25 +261,17 @@ window.addEventListener('DOMContentLoaded', function() {
         
             const formData = new FormData(form);
 
-            const object = {};
-            formData.forEach(function(value, key){
-                object[key] = value;
-            });
+            const json = JSON.stringify(Object.fromEntries(formData.entries())); // получаем данные с формы, вначале они превращаются в массив массивов, после этого превращаем в классический объект и после этого объект превращаем в JSON
 
-            fetch('server.php', { // обращаемся к серверу, создаём объект
-                method: 'POST', // метод пост
-                headers: { // заголовки
-                    'Content-Type': 'application/json' 
-                },
-                body: JSON.stringify(object) // тело, которое будем отправлять
-            }).then(data => { // с сервера вернутся данные, создаём коллбэк функцию
-                console.log(data); // возвращаем данные из promise (с сервера)
-                showThanksModal(message.success); // показывает сообщение о благодарности
-                statusMessage.remove(); // удаление спиннера
-            }).catch(() => { // обрабатываем ошибки (catch), создаём коллбэк функцию 
-                showThanksModal(message.failure); // выводится сообщение о том, что что-то пошло не так
-            }).finally(() => { // действие, которое выполняется всегда в не зависимости от ответа сервера, создаём коллбэк функцию
-                form.reset(); // очищается форма
+            postData('http://localhost:3000/requests', json) // отправляем JSON на сервер (который получили выше)
+            .then(data => { 
+                console.log(data);
+                showThanksModal(message.success);
+                statusMessage.remove();
+            }).catch(() => {
+                showThanksModal(message.failure);
+            }).finally(() => {
+                form.reset();
             });
         });
     }
