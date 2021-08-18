@@ -1,0 +1,22 @@
+{
+  "name": "food-shop",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WestKostikov/Food-shop.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/WestKostikov/Food-shop/issues"
+  },
+  "homepage": "https://github.com/WestKostikov/Food-shop#readme",
+  "devDependencies": {
+    "json-server": "^0.16.3"
+  }
+}
